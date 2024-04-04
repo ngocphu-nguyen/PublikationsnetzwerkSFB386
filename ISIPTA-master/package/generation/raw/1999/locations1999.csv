@@ -1,0 +1,83 @@
+"year","author","email","country_code","country_name","city","city_lat","city_lon","university","department"
+1999,"Joaquin Abellan","jabellan@jet.es","ES","Spain","Malaga",,,NA,NA
+1999,"Serafin Moral","smc@decsai.ugr.es","ES","Spain","Granada",,,NA,NA
+1999,"Stefan Arnborg","stefan@nada.kth.se","SE","Sweden","Stockholm",,,NA,NA
+1999,"Thomas Augustin","thomas@stat.uni-muenchen.de","DE","Germany","Munich",,,NA,NA
+1999,"Jean-Marc Bernard","berj@univ-paris8.fr","FR","France","Saint-Denis",,,NA,NA
+1999,"Veronica Biazzo","biazzo@liotro.dipmat.unict.it","IT","Italy","Catania",,,NA,NA
+1999,"Angelo Gilio","gilio@dipmat.unict.it","IT","Italy","Catania",,,NA,NA
+1999,"Antoine Billot","billot@u-paris2.fr","FR","France","Paris",,,NA,NA
+1999,"Alain Chateauneuf","chateaun@univ-paris1.fr","FR","France","Paris",,,NA,NA
+1999,"Itzhak Gilboa","gilboa@econ.tau.ac.il","IL","Israel","Tel Aviv",,,NA,NA
+1999,"Jean-Marc Tallon","jmtallon@univ-paris1.fr","FR","France","Paris",,,NA,NA
+1999,"Veselka Boeva","boevi@mbox.digsys.bg","BG","Bulgaria","Plovdiv",,,NA,NA
+1999,"Elena Tsiporkova","etsipork@baard.lhs.be","BE","Belgium","Wemmel",,,NA,NA
+1999,"Bernard De Baets","bernard.debaets@rug.ac.be","BE","Belgium","Ghent",,,NA,NA
+1999,"Andres Cano","acu@decsai.ugr.es","ES","Spain","Granada",,,NA,NA
+1999,"Andrea Capotorti","capot@dipmat.unipg.it","IT","Italy","Perugia",,,NA,NA
+1999,"Barbara Vantaggi","vant@stat.unipg.it","IT","Italy","Perugia",,,NA,NA
+1999,"Paola Castellan","sgarro@univ.trieste.it","IT","Italy","Trieste",,,NA,NA
+1999,"Andrea Sgarro","sgarro@univ.trieste.it","IT","Italy","Trieste",,,NA,NA
+1999,"Jean-Christophe Vergnaud","vergnaud@univ-paris1.fr","FR","France","Paris",,,NA,NA
+1999,"Morgane Cheve","mcheve@ecp.fr","FR","France","Chatenay-Malabry",,,NA,NA
+1999,"Ronan Congar","rcongar@ecp.fr","FR","France","Chatenay-Malabry",,,NA,NA
+1999,"Michele Cohen","cohenmd@univ-paris1.fr","FR","France","Paris",,,NA,NA
+1999,"Jean-Yves Jaffray","Jean-Yves.Jaffray@lip6.fr","FR","France","Paris",,,NA,NA
+1999,"David Schmeidler","schmeid@post.tau.ac.il","IL","Israel","Tel Aviv",,,NA,NA
+1999,"Giulianella Coletti","coletti@dipmat.unipg.it","IT","Italy","Perugia",,,NA,NA
+1999,"Romano Scozzafava","romscozz@dmmm.uniroma1.it","IT","Italy","Rome",,,NA,NA
+1999,"Gert de Cooman","gert.decooman@rug.ac.be","BE","Belgium","Ghent",,,NA,NA
+1999,"Ines Couso","couso@pinon.ccu.uniovi.es","ES","Spain","Oviedo",,,NA,NA
+1999,"Peter Walley",NA,"NZ","New Zealand","Lower Hutt",,,NA,NA
+1999,"Fabio Cozman","fgcozman@usp.br","BR","Brazil","Sao Paulo",,,NA,NA
+1999,"Dieter Denneberg","denneberg@math.uni-bremen.de","DE","Germany","Bremen",,,NA,NA
+1999,"Thomas Fetz","fetz@mat1.uibk.ac.at","AT","Austria","Innsbruck",,,NA,NA
+1999,"Michael Oberguggenberger","michael@mat1.uibk.ac.at","AT","Austria","Innsbruck",,,NA,NA
+1999,"Simon Pittschmann","simon@mat1.uibk.ac.at","AT","Austria","Innsbruck",,,NA,NA
+1999,"Paolo Ghirardato","paolo@hss.caltech.edu","US","United States","Pasadena",,,NA,NA
+1999,"Massimo Marinacci","marinacc@economia.unibo.it","IT","Italy","Bologna",,,NA,NA
+1999,"Michel Grabisch","michel.grabisch@lcr.thomson-csf.com","FR","France","Orsay",,,NA,NA
+1999,"Pierre Hansen","pierreh@crt.umontreal.ca","CA","Canada","Montreal",,,NA,NA
+1999,"Brigitte Jaumard","brigitt@crt.umontreal.ca","CA","Canada","Montreal",,,NA,NA
+1999,"Marcus Poggi de Aragao","poggi@inf.puc-rio.br","BR","Brazil","Rio De Janeiro",,,NA,NA
+1999,"Fabien Chauny","fabien@crt.umontreal.ca","CA","Canada","Montreal",,,NA,NA
+1999,"Sylvain Perron","sylvain@crt.umontreal.ca","CA","Canada","Montreal",,,NA,NA
+1999,"David Harmanec","davidh@comp.nus.edu.sg","SG","Singapore","Singapore",,,NA,NA
+1999,"Hugo Janssen","hugo.janssen@rug.ac.be","BE","Belgium","Ghent",,,NA,NA
+1999,"Etienne E. Kerre","etienne.kerre@rug.ac.be","BE","Belgium","Ghent",,,NA,NA
+1999,"Meglena Jeleva","jeleva@ensae.fr","FR","France","Paris",,,NA,NA
+1999,"Cliff Joslyn","joslyn@lanl.gov","US","United States","Los Alamos",,,NA,NA
+1999,"Joseph Kadane","kadane@stat.cmu.edu","US","United States","Pittsburgh",,,NA,NA
+1999,"Elias Moreno","emoreno@ugr.es","ES","Spain","Granada",,,NA,NA
+1999,"Maria Eglee Perez","eglee@cesma.usb.ve","VE","Venezuela","Caracas",,,NA,NA
+1999,"Luis Raul Pericchi","pericchi@cesma.usb.ve","VE","Venezuela","Caracas",,,NA,NA
+1999,"John Kenney","keney@ee.byu.edu","US","United States","Provo",,,NA,NA
+1999,"Wynn Stirling","wynn@ee.byu.edu","US","United States","Provo",,,NA,NA
+1999,"George Klir","gklir@binghamton.edu","US","United States","Binghamton",,,NA,NA
+1999,"Igor Kozine","ikozine@binghamton.edu","US","United States","Binghamton",,,NA,NA
+1999,"Karen Kramer","kkramer@uiuc.edu","US","United States","Urbana-Champaign",,,NA,NA
+1999,"David Budescu","dbudescu@uiuc.edu","US","United States","Urbana-Champaign",,,NA,NA
+1999,"Isaac Levi","levi@columbia.edu","US","United States","New York",,,NA,NA
+1999,"Charles Manski","cfmanski@nwu.edu","US","United States","Evanston",,,NA,NA
+1999,"Sujoy Mukerji","sm5@soton.ac.uk","GB","United Kingdom","Southampton",,,NA,NA
+1999,"Robert Nau","robert.nau@duke.edu","US","United States","Durham (US)",,,NA,NA
+1999,"Klaus Nehring","kdnehring@ucdavis.edu","US","United States","Davis",,,NA,NA
+1999,"Jeff Paris","jeff@ma.man.ac.uk","GB","United Kingdom","Manchester",,,NA,NA
+1999,"Paul Watton",NA,"GB","United Kingdom","Manchester",,,NA,NA
+1999,"George Wilmers","george@ma.man.ac.uk","GB","United Kingdom","Manchester",,,NA,NA
+1999,"Fernando Reche","freche@stat.ualm.es","ES","Spain","Almeria",,,NA,NA
+1999,"Antonio Salmeron","asc@stat.ualm.es","ES","Spain","Almeria",,,NA,NA
+1999,"Mark Schervish","mark@stat.cmu.edu","US","United States","Pittsburgh",,,NA,NA
+1999,"Teddy Seidenfeld","teddy@stat.cmu.edu","US","United States","Pittsburgh",,,NA,NA
+1999,"Michael Smithson","Michael.Smithson@anu.edu.au","AU","Australia","Canberra",,,NA,NA
+1999,"Thomas Bartos","Thomas.Bartos@anu.edu.au","AU","Australia","Canberra",,,NA,NA
+1999,"Kazuhisa Takemura","takemura@shako.sk.tsukuba.ac.jp","JP","Japan","Tsukuba",,,NA,NA
+1999,"Lev Utkin","lvu@utkin.usr.etu.spb.ru","RU","Russian Federation","Saint Petersburg",,,NA,NA
+1999,"Sergey Gurov","kir@inf.fta.spb.ru","RU","Russian Federation","Saint Petersburg",,,NA,NA
+1999,"Jirina Vejnarova","vejnar@vse.cz","CZ","Czech Republic","Prague",,,NA,NA
+1999,"Paolo Vicig","paolov@econ.univ.trieste.it","IT","Italy","Trieste",,,NA,NA
+1999,"Frans Voorbraak","fransv@wins.uva.nl","NL","Netherlands","Amsterdam",,,NA,NA
+1999,"Peter Wakker","Wakker@MDM.MedFac.LeidenUniv.nl","NL","Netherlands","Leiden",,,NA,NA
+1999,"Kurt Weichselberger","weichsel@stat.uni-muenchen.de","DE","Germany","Munich",,,NA,NA
+1999,"Nic Wilson","pnwilson@brookes.ac.uk","GB","United Kingdom","Oxford",,,NA,NA
+1999,"Marco Zaffalon","zaffalon@idsia.ch","CH","Switzerland","Manno",,,NA,NA

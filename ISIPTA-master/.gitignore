@@ -1,0 +1,21 @@
+# R-Files (generic)
+.Rhistory
+.RData
+
+# R-FIles (project specific)
+.Rproj.user
+
+# TeX-Files (generic)
+*.out
+*.log
+*.nav
+*.aux
+*.bbl
+*.blg
+*.synctex.gz
+
+# PDF generated files in poster directories
+/poster*/*.pdf
+
+# Testing/example files
+/poster*/tex/*
