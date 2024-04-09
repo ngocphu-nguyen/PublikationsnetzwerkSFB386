@@ -2,10 +2,10 @@
 ### joined by an edge if the two authors have written a joint paper.
 
 library("ISIPTA.eProceedings")
-library(ggplot2)
 library(igraph)
 library(plyr)
 library(reshape2)
+library(tidyverse)
 
 # data("authors_locations", package = "ISIPTA.eProceedings")
 # data("papers_authors", package = "ISIPTA.eProceedings")
@@ -30,6 +30,10 @@ colnames(conferences_contributors) <-
 authors_ncontributions <-
   data.frame(author = conferences_contributors$author,
              ncontribs = rowSums(conferences_contributors[, -1]))
+
+# authors_ncontributions <-
+#   data.frame(author = conferences_contributors$author,
+#              ncontribs = conferences_contributors$`1996`)
 
 
 ### Coauthor pairs calculation: ######################################
@@ -57,6 +61,18 @@ coauthors_pairs <- within(coauthors_pairs, {
   id <- factor(id)
 })
 
+coauthors_pairs <- coauthors_pairs %>%
+  filter(author1 != author2)
+
+df_duplicates <- coauthors_pairs %>%
+  group_by(across(everything())) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+coauthors_pairs[13, 3] <- 1997
+coauthors_pairs[161, 3] <- 1999
+coauthors_pairs <- coauthors_pairs[-c(14, 15, 162, 163), ]
+# coauthors_pairs <- coauthors_pairs[coauthors_pairs$author1 != coauthors_pairs$author2, ]
 
 
 ## Reduce to the number of each pair:
@@ -91,7 +107,7 @@ graph <- graph.data.frame(edgelist,
 
 ### Visualization of the graph: ######################################
 
-set.seed(1234)
+set.seed(networkseed)
 coords <- layout_with_fr(graph = graph, niter = 2000)
 plot(graph,
      vertex.size = 5,
@@ -194,7 +210,7 @@ for ( i in years ) {
   fcolor <- ifelse(authors_years[[i]] > 0, "black", NA)
   
   op1 <- par(mar = c(1, 0, 0, 0))
-  set.seed(1234)
+  set.seed(2006)
   plot(graph,
        vertex.size = 3,
        vertex.label = NA,
