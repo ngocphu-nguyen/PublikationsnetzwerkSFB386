@@ -21,6 +21,13 @@ lapply(Packages, library, character.only = TRUE)
 ## Data preparation
 
 ```{r dataprep}
+#### Read the processed dataframe into R
+all_papers <- read.csv("./all_papers.csv")
+
+#### Below are the steps that were originally done to process the raw data found in "raw_data.R",
+#### which due to formatting issues, will not be used to reproduce the results in this analysis.
+#### The final dataframe has been exported into "all_papers.csv" and can be read back into R again.
+
 # #### Put raw data in the right format
 # for (year in 1995:2006) {
 #   # Construct the variable name for the current year
@@ -81,11 +88,11 @@ lapply(Packages, library, character.only = TRUE)
 # all_papers <- as.data.frame(select(all_papers_title, year, id, author, -title))
 # 
 # 
-# #### Cleaning author names
-# unique_authors <- all_papers %>%
-#   select(author) %>%
-#   distinct(author, .keep_all = TRUE) %>%
-#   mutate(author = as.character(author))
+#### Cleaning author names
+unique_authors <- all_papers %>%
+  select(author) %>%
+  distinct(author, .keep_all = TRUE) %>%
+  mutate(author = as.character(author))
 # 
 # normalize_name <- function(name) {
 #   parts <- unlist(strsplit(name, split = "\\s+"))
@@ -123,12 +130,13 @@ lapply(Packages, library, character.only = TRUE)
 # 
 # unique_authors$author <- sapply(unique_authors$author, replace_names)
 # 
-# unique_authors <- unique_authors %>%
-#   distinct(author, .keep_all = TRUE) %>%
-#   select(author) %>%
-#   arrange(author)
+unique_authors <- unique_authors %>%
+  distinct(author, .keep_all = TRUE) %>%
+  select(author) %>%
+  arrange(author)
 # 
 # all_papers$author <- sapply(all_papers$author, replace_names)
+
 
 #### Put the df in the similar format to the one used in the ISIPTA package
 all_papers$year <- as.integer(all_papers$year)
@@ -256,10 +264,10 @@ graph_no_isolated <- delete_vertices(graph, lone_nodes)
 graph_no_isolated_id <- author_id %>%
   dplyr::filter(!(author %in% V(graph)[degree(graph) == 0]$name))
 
-notworkseed <- 2006
+networkseed <- 2006
 set.seed(networkseed)
 coords <- layout_with_fr(graph_no_isolated, niter = 2000)
-pdf("C:/Users/Ngoc Phu Nguyen/Documents/GitHub/Bachelorarbeit/Deskriptive Analyse/Coauthor-Network/network_no_isolated.pdf", width=18, height=18, family = "CMU Serif")
+pdf("./Grafiken/Coauthor-Network/network_no_isolated.pdf", width=18, height=18, family = "CMU Serif")
 op1 <- par(mar = c(1, 0, 0, 0))
 plot(graph_no_isolated,
      vertex.size = 3.5,
@@ -322,7 +330,7 @@ npapers_year <- all_papers %>%
   dplyr::summarise(papers = n()) %>%
   mutate(year = as.factor(year))
 
-pdf("./Deskriptive Analyse/Anzahl Papiere pro Jahr.pdf", width = 10, height = 5.6)
+pdf("./Grafiken/Anzahl Papiere pro Jahr.pdf", width = 10, height = 5.6)
 ggplot(npapers_year, aes(x = year, y = papers)) + 
   geom_point(size = 2.2, , color = "#4d9221") +
   geom_line(group = 1, color = "#4d9221", size = 1) +
@@ -357,7 +365,7 @@ authors_per_paper <- papers_nauthors %>%
   mutate(nauthors = as.factor(nauthors),
          n = as.numeric(n))
 
-pdf("./Deskriptive Analyse/Autoren pro Papier.pdf", width = 10, height = 5.6)
+pdf("./Grafiken/Autoren pro Papier.pdf", width = 10, height = 5.6)
 ggplot(authors_per_paper, aes(x = nauthors, y = n)) +
   geom_col(fill = "#4d9221") + labs(x = "Authors", y = "Papers") +
   geom_text(aes(label = n), vjust = -0.5, family = "CMU Serif", color = "#276419", fontface = "bold") +
@@ -389,7 +397,7 @@ papers_per_author <- as.data.frame(papers_per_author)
 papers_per_author <- papers_per_author %>%
   mutate(Var1 = factor(Var1))
 
-pdf("./Deskriptive Analyse/Anzahl Papiere pro Autor.pdf", width = 10, height = 5.6)
+pdf("./Grafiken/Anzahl Papiere pro Autor.pdf", width = 10, height = 5.6)
 ggplot(papers_per_author, aes(x = Var1, y = Freq)) + 
   geom_col(stat = "identity", fill = "#c51b7d") +
   geom_text(aes(label = Freq), vjust = -0.5, family = "CMU Serif", color = "#8e0152") +
@@ -420,7 +428,7 @@ top_authors$author <- gsub(" \\(", "\n(", top_authors$author)
 top_authors <- top_authors %>%
   mutate(author = fct_reorder(author, ncontribs, .desc=TRUE))
 
-pdf("./Deskriptive Analyse/Top Autoren.pdf", width = 16, height = 6.9)
+pdf("./Grafiken/Top Autoren.pdf", width = 16, height = 6.9)
 ggplot(top_authors, aes(x = author, y = ncontribs, fill = pleiter)) +
   geom_col() +
   geom_text(aes(label = ncontribs), vjust = -0.5, family = "CMU Serif", size = 6, color = "#67000d") +
@@ -443,11 +451,13 @@ dev.off()
 ```{r centrality}
 #### Degree centrality
 degree_centrality <- degree(graph_no_isolated)
+degree_centrality_norm <- degree(graph_no_isolated, normalized = TRUE)
 
-degree_centrality_df <- data.frame(centrality = degree_centrality)
+degree_centrality_df <- data.frame(centrality_norm = degree_centrality_norm,
+                                   centrality = degree_centrality)
 degree_centrality_df <- degree_centrality_df %>%
   mutate(name = row.names(degree_centrality_df)) %>%
-  select(name, centrality)
+  select(name, centrality_norm, centrality)
 degree_centrality_df$name <- sapply(degree_centrality_df$name, add_numbering)
 
 #### Betweenness centrality
@@ -469,7 +479,7 @@ graph_decompose_id <- V(graph_decompose)$name
 graph_decompose_id <- author_id %>%
   dplyr::filter(author %in% graph_decompose_id)
 
-pdf("./Deskriptive Analyse/Coauthor-Network/biggest-component.pdf", width=16, height=16, family = "CMU Serif")
+pdf("./Grafiken/Coauthor-Network/biggest-component.pdf", width=16, height=16, family = "CMU Serif")
 op1 <- par(mar = c(1, 0, 0, 0))
 set.seed(networkseed)
 coords <- layout_with_graphopt(graph = graph_decompose, niter = 2000)
@@ -505,7 +515,7 @@ summary_girvan <- community_girvan %>%
   group_by(Group) %>%
   dplyr::summarise(n())
 
-pdf("./Deskriptive Analyse/Coauthor-Network/girvan-biggest-component.pdf", width=16, height=16, family = "CMU Serif")
+pdf("./Grafiken/Coauthor-Network/girvan-biggest-component.pdf", width=16, height=16, family = "CMU Serif")
 op1 <- par(mar = c(1, 0, 0, 0))
 colors <- brewer.pal(min(12, max(membership(clusters_girvan))), "Paired")
 set.seed(networkseed)
