@@ -5,7 +5,7 @@ library("ISIPTA.eProceedings")
 library(ggplot2)
 library(plyr)
 
-papers_ncoauthors <- ddply(papers_authors, .(id),
+papers_ncoauthors <- ddply(papers_authors, .(id, year),
                           function(x) {
                             data.frame(year = x$year,
                                        id = x$id,

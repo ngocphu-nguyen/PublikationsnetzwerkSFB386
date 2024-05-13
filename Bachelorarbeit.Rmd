@@ -1,0 +1,530 @@
+---
+title: "Bachelorarbeit"
+author: 'Phu Nguyen (Matrikelnr: 11904670)'
+date: "2024-05-08"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libs, echo=FALSE}
+install.packages("devtools")
+library("devtools")
+devtools::install_github("paul-fink/ISIPTA/package")
+Packages <- c("dplyr", "tidyr", "ISIPTA.eProceedings", "RColorBrewer", "igraph", "plyr", "reshape2", "tidyverse", "ggrepel", "extrafont", "xtable")
+if (!require(Packages)) install.packages(Packages)
+lapply(Packages, library, character.only = TRUE)
+```
+
+## Data preparation
+
+```{r dataprep}
+# #### Put raw data in the right format
+# for (year in 1995:2006) {
+#   # Construct the variable name for the current year
+#   variable_name <- paste("papers", year, sep = "_")
+#   
+#   # Use get() to access the data for the current year
+#   year_data <- get(variable_name)
+#   
+#   # Split it into lines
+#   lines <- unlist(strsplit(year_data, "\n"))
+#   
+#   # Initialize empty lists to store each component
+#   authors <- list()
+#   titles <- list()
+#   paper_numbers <- list()
+#   
+#   # Iterate over each line to extract information
+#   for(line in lines) {
+#     # Extract authors by capturing everything before the year
+#     author_match <- regmatches(line, regexpr("^(.+?)\\(\\d{4}\\):", line))
+#     # Replace ' and ' with '; '
+#     cleaned_authors <- gsub(" and ", "; ", gsub("\\s\\(\\d{4}\\):", "", author_match))
+#     authors <- c(authors, cleaned_authors)
+#     
+#     # Extract titles by capturing everything between ": " and ". Collaborative"
+#     title_match <- regmatches(line, regexpr("(?<=: ).+?(?=\\. Collaborative)", line, perl=TRUE))
+#     titles <- c(titles, title_match)
+#     
+#     # Extract paper numbers by capturing digits following "Discussion Paper"
+#     number_match <- regmatches(line, regexpr("(?<=Discussion Paper )\\d+", line, perl=TRUE))
+#     paper_numbers <- c(paper_numbers, number_match)
+#   }
+#   
+#   # Combine the lists into a dataframe
+#   papers <- data.frame(
+#     author = unlist(authors),
+#     title = unlist(titles),
+#     id = unlist(paper_numbers),
+#     stringsAsFactors = FALSE
+#   )
+#   
+#   papers <- papers %>%
+#     mutate(author = strsplit(as.character(author), ";\\s*")) %>%
+#     unnest(author) %>%
+#     mutate(has_comma = grepl(",", author)) %>%
+#     mutate(author = if_else(has_comma, author, paste(author, ",", sep = ""))) %>%
+#     separate(author, into = c("LastName", "FirstName"), sep = "\\s*,\\s*", extra = "merge", fill = "right") %>%
+#     unite("author", FirstName, LastName, sep = " ", remove = TRUE) %>%
+#     mutate(author = trimws(author)) %>%
+#     select(-has_comma) %>%
+#     mutate(year = year)
+#   
+#   # Assign the processed dataframe back to a variable (can replace the original or create a new one)
+#   assign(variable_name, papers)
+# }
+# 
+# all_papers_title <- rbind(papers_1995, papers_1996, papers_1997, papers_1998, papers_1999, papers_2000, papers_2001, papers_2002, papers_2003, papers_2004, papers_2005, papers_2006)
+# all_papers <- as.data.frame(select(all_papers_title, year, id, author, -title))
+# 
+# 
+# #### Cleaning author names
+# unique_authors <- all_papers %>%
+#   select(author) %>%
+#   distinct(author, .keep_all = TRUE) %>%
+#   mutate(author = as.character(author))
+# 
+# normalize_name <- function(name) {
+#   parts <- unlist(strsplit(name, split = "\\s+"))
+#   if (length(parts) > 1) {
+#     return(paste0(substring(parts[1], 1, 1), ". ", parts[length(parts)]))
+#   } else {
+#     return(name)
+#   }
+# }
+# 
+# unique_authors$normalized_author <- sapply(unique_authors$author, normalize_name)
+# 
+# # Find authors whose name is stored in both shortened and full format, e.g. S. Lang and Stefan Lang
+# duplicates <- unique_authors %>%
+#   group_by(normalized_author) %>%
+#   filter(n_distinct(author) > 1) %>%
+#   filter(normalized_author != author & normalized_author != "M. Smith") %>%
+#   arrange(normalized_author, author)
+# 
+# # Add cases of authors appearing twice due to other name inconsistencies: e.g. "ss" and "ß", or alternative names
+# # or replacing short with full names
+# name_cleaning <- data.frame(author = c("Albrecht Neiß", "Albrecht Neiß", "Günter Raßer", "Leonhard Held", "Volkmar Liebscher", "Christian Kastner", "Andreas Fieger", "Vinay Kumar Srivastava", "Olaf Wittich"), 
+#                             normalized_author = c("A. Neiss", "A. Neiß", "G. Rasser", "Leonhard Knorr-Held", "V. Liebscher", "C. Kastner", "A. Fieger", "V. K. Srivastava", "O. Wittich"))
+# 
+# duplicates <- bind_rows(duplicates, name_cleaning)
+# 
+# replace_names <- function(name) {
+#   match <- duplicates$normalized_author == name
+#   if (any(match)) {
+#     return(duplicates$author[match])
+#   } else {
+#     return(name)
+#   }
+# }
+# 
+# unique_authors$author <- sapply(unique_authors$author, replace_names)
+# 
+# unique_authors <- unique_authors %>%
+#   distinct(author, .keep_all = TRUE) %>%
+#   select(author) %>%
+#   arrange(author)
+# 
+# all_papers$author <- sapply(all_papers$author, replace_names)
+
+#### Put the df in the similar format to the one used in the ISIPTA package
+all_papers$year <- as.integer(all_papers$year)
+all_papers$id <- as.integer(all_papers$id)
+all_papers$author <- as.factor(all_papers$author)
+
+authors_locations <- all_papers
+papers_authors <- all_papers
+```
+
+## Creating a base network graph, inspired by the ISIPTA.eProceedings package
+
+```{r ISIPTA}
+authors_locations$year <- ordered(authors_locations$year)
+
+conferences_contributors <-
+  ddply(authors_locations, .(author),
+        function(x) {
+          data.frame(t(as.matrix(table(x$year))))
+        })
+
+colnames(conferences_contributors) <-
+  c("author", sub("X", "", colnames(conferences_contributors)[-1]))
+
+
+authors_ncontributions <-
+  data.frame(author = conferences_contributors$author,
+             ncontribs = rowSums(conferences_contributors[, -1]))
+
+
+### Coauthor pairs calculation: ######################################
+coauthors_pairs <- ddply(papers_authors, .(id, year), # Added year to account for papers 12 and 134 that were worked on in different years
+                         function(x) {
+                           if ( nrow(x) > 1 ) {
+                             authors <- sort(as.character(x$author))
+                             pairs <- combn(authors, 2)
+                             
+                             data.frame(author1 =
+                                          factor(pairs[1, ],
+                                                 levels = levels(x$author)),
+                                        
+                                        author2 =
+                                          factor(pairs[2, ],
+                                                 levels = levels(x$author)),
+                                        
+                                        year = x$year[1],
+                                        id = x$id[1])
+                           }
+                         })
+
+coauthors_pairs <- within(coauthors_pairs, {
+  year <- ordered(year)
+  id <- factor(id)
+})
+
+
+## Reduce to the number of each pair:
+coauthors_npairs <- ddply(coauthors_pairs, .(author1, author2),
+                          function(x) {
+                            c(npairs = nrow(x))
+                          })
+
+
+
+### Overall collaboration graph: #####################################
+
+## Edgelist; width of the edge is the number of joint papers:
+edgelist <- within(coauthors_npairs, {
+  width <- npairs
+  npairs <- NULL
+})
+
+
+
+## Vertices:
+vertices <- data.frame(name = levels(edgelist$author1))
+
+
+
+## Graph:
+graph <- graph.data.frame(edgelist,
+                          directed = FALSE,
+                          vertices = vertices)
+```
+
+## To create a table with author id numbering
+
+```{r authorid}
+#### A map of authors and their id number
+author_id <- unique_authors %>%
+  select(author) %>%
+  mutate(author_id = row_number(author))
+
+#### Export author id table as Latex code
+author_id_export <- data.frame(matrix(nrow = 101, ncol = 6))
+author_id_export$X1 <- author_id$author[1:101]
+author_id_export$X2 <- author_id$author_id[1:101]
+author_id_export$X3 <- author_id$author[102:202]
+author_id_export$X4 <- author_id$author_id[102:202]
+author_id_export$X5 <- c(author_id$author[203:302], NA)
+author_id_export$X6 <- c(author_id$author_id[203:302], NA)
+
+latex_table <- print(xtable(author_id_export), include.rownames = FALSE, floating = FALSE, hline.after = NULL, comment = FALSE)
+
+#### Create a function to add numbering next to an author's name, only works with 1 df column at a time
+add_numbering <- function(name) {
+  # Find a match in the name_map
+  match <- author_id$author == name
+  if (any(match)) {
+    # If a match is found, return the corresponding full name and numbering
+    return(paste(name, ' (', author_id$author_id[match], ')', sep=''))
+  } else {
+    # If no match is found, return the original value
+    return(name)
+  }
+}
+```
+
+## Network visualization
+
+```{r networkvis}
+#### Remove isolated nodes
+lone_nodes <- V(graph)[degree(graph) == 0]
+graph_no_isolated <- delete_vertices(graph, lone_nodes)
+graph_no_isolated_id <- author_id %>%
+  dplyr::filter(!(author %in% V(graph)[degree(graph) == 0]$name))
+
+notworkseed <- 2006
+set.seed(networkseed)
+coords <- layout_with_fr(graph_no_isolated, niter = 2000)
+pdf("C:/Users/Ngoc Phu Nguyen/Documents/GitHub/Bachelorarbeit/Deskriptive Analyse/Coauthor-Network/network_no_isolated.pdf", width=18, height=18, family = "CMU Serif")
+op1 <- par(mar = c(1, 0, 0, 0))
+plot(graph_no_isolated,
+     vertex.size = 3.5,
+     vertex.color = "gray90",
+     vertex.label = graph_no_isolated_id$author_id,
+     vertex.label.family = "CMU Serif",
+     vertex.label.cex = 0.9,
+     vertex.frame.color = "gray90",
+     vertex.label.color = "black",
+     edge.color = "SkyBlue2",
+     layout = coords)
+legend("topleft",
+       legend = sort(unique(edgelist$width)),
+       lwd = sort(unique(edgelist$width)),
+       col = "SkyBlue2",
+       bty = "n")
+par(op1)
+dev.off()
+```
+
+## Network metrics
+
+```{r networkmetrics}
+#### Original graph
+vcount(graph) # 302 nodes
+ecount(graph) # 586 edges
+
+#### Refined graph with no isolated nodes
+vcount(graph_no_isolated) # 295 nodes
+ecount(graph_no_isolated) # 586 edges
+count_components(graph_no_isolated) # 12 components
+components(graph_no_isolated)$csize # Biggest component with 216 nodes, second biggest 43
+diameter(graph_no_isolated) # Diameter 10
+
+#### Longest geodesic/shortest path
+longest_path_df <- data.frame(name = V(graph)[get.diameter(graph)]$name)
+longest_path_df$name <- sapply(longest_path_df$name, add_numbering)
+
+#### Thickest lines in the graph - Which pairs collaborated the most
+top_pair <- coauthors_npairs
+top_pair$author1 <- sapply(top_pair$author1, add_numbering)
+top_pair$author2 <- sapply(top_pair$author2, add_numbering)
+
+top_pair <- top_pair %>%
+  filter(npairs >= 10) %>%
+  arrange(desc(npairs)) %>%
+  mutate(coauthor_pair = fct_reorder(paste(author1, ' - ', author2, sep=''), npairs, .desc = TRUE),
+         npairs = as.factor(npairs)) %>%
+  select(coauthor_pair, npairs, -author1, -author2)
+# Helge Toutenburg with Shalabh and Vinay Kumar Srivastava
+```
+
+## Further descriptive statistics
+
+```{r furtherstat}
+#### Number of papers each year
+npapers_year <- all_papers %>%
+  distinct(year, id, .keep_all = TRUE) %>%
+  group_by(year) %>%
+  dplyr::summarise(papers = n()) %>%
+  mutate(year = as.factor(year))
+
+pdf("./Deskriptive Analyse/Anzahl Papiere pro Jahr.pdf", width = 10, height = 5.6)
+ggplot(npapers_year, aes(x = year, y = papers)) + 
+  geom_point(size = 2.2, , color = "#4d9221") +
+  geom_line(group = 1, color = "#4d9221", size = 1) +
+  geom_label_repel(aes(label = papers),
+                   nudge_y = c(-1.5, 1.8, 1.5, -1.5, -1.5, 1.5, -1.5, -1.5, 1.5, -1.5, 1.5, -1.5),
+                   color = "#276419",
+                   family = "CMU Serif") +
+  scale_y_continuous(limits = c(0, 70)) +
+  labs(x = "Jahr", y = "Anzahl") +
+  theme_minimal() +
+  theme(text = element_text(family = "CMU Serif", size = 16))
+dev.off()
+
+
+#### Authors per paper
+papers_nauthors <-
+  ddply(papers_authors, .(id, year), # Also added "year" to account for 2 papers 12 and 134
+        function(x) {
+          data.frame(year = x$year[1],
+                     id = x$id[1],
+                     nauthors = nrow(x))
+        })
+
+papers_nauthors <- within(papers_nauthors, {
+  nauthors <- ordered(nauthors)
+  year <- ordered(year)
+})
+
+authors_per_paper <- papers_nauthors %>%
+  group_by(nauthors) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(nauthors = as.factor(nauthors),
+         n = as.numeric(n))
+
+pdf("./Deskriptive Analyse/Autoren pro Papier.pdf", width = 10, height = 5.6)
+ggplot(authors_per_paper, aes(x = nauthors, y = n)) +
+  geom_col(fill = "#4d9221") + labs(x = "Authors", y = "Papers") +
+  geom_text(aes(label = n), vjust = -0.5, family = "CMU Serif", color = "#276419", fontface = "bold") +
+  scale_y_continuous(limits = c(0, 230)) +
+  labs(x = "...Autoren",
+       y = "Anzahl Papiere mit...") +
+  theme_minimal() +
+  theme(text = element_text(family = "CMU Serif", size = 16))
+dev.off()
+
+
+#### Papers per author
+authors_npapers <-
+  ddply(papers_authors, .(author, year),
+        function(x) {
+          data.frame(year = x$year[1],
+                     author = x$author[1],
+                     npapers = nrow(x))
+        })
+
+authors_npapers$year <- ordered(authors_npapers$year)
+
+authors_npapers_overall <-
+  ddply(authors_npapers, .(author), numcolwise(sum))
+
+papers_per_author <- table(authors_npapers_overall$npapers)
+
+papers_per_author <- as.data.frame(papers_per_author)
+papers_per_author <- papers_per_author %>%
+  mutate(Var1 = factor(Var1))
+
+pdf("./Deskriptive Analyse/Anzahl Papiere pro Autor.pdf", width = 10, height = 5.6)
+ggplot(papers_per_author, aes(x = Var1, y = Freq)) + 
+  geom_col(stat = "identity", fill = "#c51b7d") +
+  geom_text(aes(label = Freq), vjust = -0.5, family = "CMU Serif", color = "#8e0152") +
+  labs(x = "...Papieren", y = "Anzahl Autoren mit...") +
+  scale_y_continuous(limits = c(0, 160)) +
+  scale_x_discrete() +
+  theme_minimal() +
+  theme(text = element_text(family = "CMU Serif", size = 16))
+dev.off()
+
+
+#### Top authors
+### Identify Projektleiter
+pleiter_name <- author_id %>%
+  filter(author %in% c("Dorothee P. Auer", "Thomas Augustin", "Claudia Czado", "Ludwig Fahrmeir",
+                       "Alfred Hamerle", "Leonhard Held", "Stephan Klasen", "Claudia Klüppelberg",
+                       "Helmut Küchenhoff", "Volkmar Liebscher", "Albrecht Neiß", "Iris Pigeot",
+                       "Helmut Pruscha", "Georg Schmidt", "Hans Schneeweiß", "Helge Toutenburg",
+                       "Gerhard Tutz", "Kurt Ulm", "Gerhard Winkler", "Olaf Wittich", "Klaus F. Zimmermann"))
+
+top_authors <- authors_ncontributions %>%
+  slice_max(order_by = ncontribs, n = 12) %>%
+  mutate(pleiter = as.factor(ifelse(author %in% pleiter_name$author, "Projektleiter", "Kein Projektleiter")))
+
+top_authors$author <- sapply(top_authors$author, add_numbering)
+top_authors$author <- gsub(" \\(", "\n(", top_authors$author)
+
+top_authors <- top_authors %>%
+  mutate(author = fct_reorder(author, ncontribs, .desc=TRUE))
+
+pdf("./Deskriptive Analyse/Top Autoren.pdf", width = 16, height = 6.9)
+ggplot(top_authors, aes(x = author, y = ncontribs, fill = pleiter)) +
+  geom_col() +
+  geom_text(aes(label = ncontribs), vjust = -0.5, family = "CMU Serif", size = 6, color = "#67000d") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#fcae91", "#cb181d")) +
+  scale_y_continuous(limits = c(0, 50)) +
+  theme_minimal() +
+  theme(text = element_text(family = "CMU Serif", size = 18),
+        axis.text.x = element_text(size = 10.25),
+        legend.position = c(0.8,0.8),
+        legend.background = element_rect(fill="white", size=0.5)) +
+  labs(x = "Autor",
+       y = "Anzahl Papiere",
+       fill = "Rolle")
+dev.off()
+```
+
+## Centrality measures - Key figures
+
+```{r centrality}
+#### Degree centrality
+degree_centrality <- degree(graph_no_isolated)
+
+degree_centrality_df <- data.frame(centrality = degree_centrality)
+degree_centrality_df <- degree_centrality_df %>%
+  mutate(name = row.names(degree_centrality_df)) %>%
+  select(name, centrality)
+degree_centrality_df$name <- sapply(degree_centrality_df$name, add_numbering)
+
+#### Betweenness centrality
+betweenness_centrality <- betweenness(graph_no_isolated, normalized = TRUE)
+
+betweenness_centrality_df <- data.frame(centrality = betweenness_centrality)
+betweenness_centrality_df <- betweenness_centrality_df %>%
+  mutate(name = row.names(betweenness_centrality_df)) %>%
+  select(name, centrality)
+betweenness_centrality_df$name <- sapply(betweenness_centrality_df$name, add_numbering)
+```
+
+## Community detection
+
+```{r community}
+#### Largest component
+graph_decompose <- decompose(graph)[[1]]
+graph_decompose_id <- V(graph_decompose)$name
+graph_decompose_id <- author_id %>%
+  dplyr::filter(author %in% graph_decompose_id)
+
+pdf("./Deskriptive Analyse/Coauthor-Network/biggest-component.pdf", width=16, height=16, family = "CMU Serif")
+op1 <- par(mar = c(1, 0, 0, 0))
+set.seed(networkseed)
+coords <- layout_with_graphopt(graph = graph_decompose, niter = 2000)
+plot(graph_decompose,
+     vertex.size = 5,
+     vertex.color = "gray90",
+     vertex.label = graph_decompose_id$author_id,
+     vertex.label.family = "CMU Serif",
+     vertex.frame.color = "gray90",
+     vertex.label.color = "black",
+     edge.color = "SkyBlue2",
+     layout = coords)
+legend("topleft",
+       legend = sort(unique(edgelist$width)),
+       lwd = sort(unique(edgelist$width)),
+       col = "SkyBlue2",
+       bty = "n")
+par(op1)
+dev.off()
+
+
+#### Clustering largest component
+clusters_girvan <- cluster_edge_betweenness(graph_decompose) # 12 groups
+
+community_girvan <- data.frame(Name = character(), Group = integer())
+for (i in seq_along(communities(clusters_girvan))) {
+  temp_df <- data.frame(Name = communities(clusters_girvan)[[i]], Group = i)
+  
+  community_girvan <- rbind(community_girvan, temp_df)
+}
+community_girvan$Name <- sapply(community_girvan$Name, add_numbering)
+summary_girvan <- community_girvan %>%
+  group_by(Group) %>%
+  dplyr::summarise(n())
+
+pdf("./Deskriptive Analyse/Coauthor-Network/girvan-biggest-component.pdf", width=16, height=16, family = "CMU Serif")
+op1 <- par(mar = c(1, 0, 0, 0))
+colors <- brewer.pal(min(12, max(membership(clusters_girvan))), "Paired")
+set.seed(networkseed)
+coords <- layout_with_graphopt(graph = graph_decompose, niter = 2000)
+plot(graph_decompose,
+     vertex.size = 5,
+     vertex.color = colors[membership(clusters_girvan)],
+     vertex.label = graph_decompose_id$author_id,
+     vertex.label.family = "CMU Serif",
+     vertex.frame.color = "gray90",
+     vertex.label.color = "black",
+     edge.color = "SkyBlue2",
+     layout = coords)
+legend("topleft",
+       legend = sort(unique(edgelist$width)),
+       lwd = sort(unique(edgelist$width)),
+       col = "SkyBlue2",
+       bty = "n")
+par(op1)
+dev.off()
+```
+

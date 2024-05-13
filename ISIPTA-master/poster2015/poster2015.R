@@ -211,11 +211,13 @@ subset(unique_coauthors, ncoauthors == 14)
 
 subset(unique_coauthors, ncoauthors >= 10)
 
+subset(unique_coauthors, ncoauthors == 0)
+
 # need cumulative coauthors by year!
 
 # asked by Lewis: who is the author with the most papers that has no coauthors?
 loneauthors_npapers <- subset(authors_npapers_overall, author %in% subset(unique_coauthors, ncoauthors == 0)$name)
 table(loneauthors_npapers$npapers)
-subset(loneauthors_npapers, npapers >= 3)
+subset(loneauthors_npapers, npapers >= 2)
 
 #
